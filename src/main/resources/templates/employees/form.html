@@ -19,26 +19,27 @@
             <h1 class="h4 mb-0" th:text="${employee.id == null ? 'Add Employee' : 'Edit Employee'}">Employee</h1>
         </div>
         <div class="card-body">
-            <form th:action="${employee.id == null} ? @{/employees} : @{|/employees/${employee.id}|}"
+            <form id="employeeForm"
+                  th:action="${employee.id == null} ? @{/employees} : @{|/employees/${employee.id}|}"
                   th:object="${employee}"
                   method="post" novalidate>
 
                 <div class="mb-3">
                     <label class="form-label" for="name">Name</label>
                     <input class="form-control" id="name" type="text" th:field="*{name}" placeholder="Full name">
-                    <div class="text-danger small" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                    <div class="invalid-feedback">Name is required and must contain only letters and spaces.</div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="age">Age</label>
                     <input class="form-control" id="age" type="number" min="0" th:field="*{age}">
-                    <div class="text-danger small" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+                    <div class="invalid-feedback">Please enter a valid age (>0 and <= 70).</div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="salary">Salary</label>
                     <input class="form-control" id="salary" type="number" min="0" step="0.01" th:field="*{salary}">
-                    <div class="text-danger small" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></div>
+                    <div class="invalid-feedback">Please enter a valid salary (0 or above).</div>
                 </div>
 
                 <div class="d-flex justify-content-between">
@@ -49,6 +50,59 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("employeeForm");
+        const nameField = document.getElementById("name");
+        const ageField = document.getElementById("age");
+        const salaryField = document.getElementById("salary");
+
+        form.addEventListener("submit", (e) => {
+            let valid = true;
+
+            // Validate Name (not empty & letters only)
+            const nameValue = nameField.value.trim();
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (nameValue === "" || !nameRegex.test(nameValue)) {
+                nameField.classList.add("is-invalid");
+                valid = false;
+            } else {
+                nameField.classList.remove("is-invalid");
+            }
+
+            // Validate Age
+            const ageValue = parseInt(ageField.value);
+            if (isNaN(ageValue) || ageValue < 0 || ageValue > 70) {
+                ageField.classList.add("is-invalid");
+                valid = false;
+            } else {
+                ageField.classList.remove("is-invalid");
+            }
+
+            // Validate Salary
+            const salaryValue = parseFloat(salaryField.value);
+            if (isNaN(salaryValue) || salaryValue < 0) {
+                salaryField.classList.add("is-invalid");
+                valid = false;
+            } else {
+                salaryField.classList.remove("is-invalid");
+            }
+
+            // If invalid → prevent submit
+            if (!valid) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        // Remove error style when user types again
+        [nameField, ageField, salaryField].forEach(field => {
+            field.addEventListener("input", () => {
+                field.classList.remove("is-invalid");
+            });
+        });
+    });
+</script>
 </body>
 </html>
-

@@ -49,7 +49,6 @@ public class EmployeeController {
         employee.setSalary(salary);
 
         employeeRepository.save(employee);
-        ra.addFlashAttribute("message", "Employee created successfully.");
         return "redirect:/employees";
     }
 
@@ -61,7 +60,6 @@ public class EmployeeController {
                     return "employees/form";
                 })
                 .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("message", "Employee not found.");
                     return "redirect:/employees";
                 });
     }
@@ -92,8 +90,6 @@ public class EmployeeController {
         existing.setAge(age);
         existing.setSalary(salary);
         employeeRepository.save(existing);
-
-        ra.addFlashAttribute("message", "Employee updated successfully.");
         return "redirect:/employees";
     }
 
@@ -101,9 +97,6 @@ public class EmployeeController {
     public String deleteEmployee(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         if (employeeRepository.existsById(id)) {
             employeeRepository.deleteById(id);
-            redirectAttributes.addFlashAttribute("message", "Employee deleted successfully.");
-        } else {
-            redirectAttributes.addFlashAttribute("message", "Employee not found.");
         }
         return "redirect:/employees";
     }
